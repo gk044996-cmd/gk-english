@@ -84,11 +84,19 @@ function formatApiError(err) {
         };
     }
 
-    if (status === 404 || status === 400 || code === "MODEL_ERROR" || code === "BAD_REQUEST") {
+    if (code === "MODEL_ERROR" || code === "BAD_REQUEST" || (status === 400 && code)) {
         return {
             type: "model",
             title: "AI Configuration Error",
             message: serverMsg || "The configured AI model or request is invalid. Please check server settings.",
+        };
+    }
+
+    if (status === 404) {
+        return {
+            type: "endpoint",
+            title: "API Endpoint Not Found",
+            message: serverMsg || "The requested AI endpoint could not be found. Please check backend deployment.",
         };
     }
 
