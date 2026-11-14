@@ -1569,7 +1569,7 @@ RESPOND ONLY WITH VALID JSON:
 const clientBuildPath = path.join(__dirname, "../client/build");
 if (fs.existsSync(clientBuildPath)) {
     app.use(express.static(clientBuildPath));
-    app.get("*", (req, res, next) => {
+    app.get("/{*splat}", (req, res, next) => {
         if (
             req.path.startsWith("/generate") ||
             req.path.startsWith("/evaluate") ||
