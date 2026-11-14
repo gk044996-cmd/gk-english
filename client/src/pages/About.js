@@ -1,88 +1,157 @@
 const About = () => {
     return (
         <div className="app-container">
-            <main className="main-content text-center animate-fade-in" style={{ maxWidth: "800px" }}>
+            <main className="main-content text-center animate-fade-in" style={{ maxWidth: "820px" }}>
                 
-                <div style={{ marginBottom: "3rem" }}>
-                    <h1 style={{ fontSize: "3rem", color: "var(--accent)" }}>ℹ️ About The Creator</h1>
-                    <p style={{ fontSize: "1.2rem", color: "var(--text-muted)" }}>
-                        Built with passion to engineer the ultimate language learning system.
+                <div style={{ marginBottom: "2.5rem" }}>
+                    <div style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: "#818cf8",
+                        marginBottom: "0.35rem"
+                    }}>
+                        <span>✦</span> Project Vision
+                    </div>
+                    <h1 className="text-gradient" style={{ fontSize: "2.6rem", margin: 0, fontWeight: 800 }}>
+                        About English Coach
+                    </h1>
+                    <p style={{ fontSize: "1.05rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
+                        Engineered to unify grammar mastery, conversational nuances, and AI evaluation into a single refined suite.
                     </p>
                 </div>
 
                 {/* Profile Card */}
-                <div className="glass-panel" style={{ padding: "3rem", marginBottom: "3rem", borderTop: "4px solid var(--accent)", background: "rgba(255,255,255,0.02)" }}>
+                <div className="glass-panel" style={{
+                    padding: "3rem 2rem",
+                    marginBottom: "3rem",
+                    borderRadius: "20px",
+                    position: "relative",
+                    overflow: "hidden"
+                }}>
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-                        <div style={{ width: "100px", height: "100px", borderRadius: "50%", background: "var(--gradient-primary)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "3rem", marginBottom: "1rem" }}>
+                        <div style={{
+                            width: "84px",
+                            height: "84px",
+                            borderRadius: "24px",
+                            background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: "2.2rem",
+                            marginBottom: "0.5rem",
+                            boxShadow: "0 10px 30px -5px rgba(99, 102, 241, 0.45)",
+                            border: "1px solid rgba(255, 255, 255, 0.25)"
+                        }}>
                             👨‍💻
                         </div>
-                        <h2 style={{ fontSize: "2rem", color: "white", margin: 0 }}>Ganesh Kumar P</h2>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--primary)", fontSize: "1.1rem", background: "rgba(99, 102, 241, 0.1)", padding: "0.5rem 1rem", borderRadius: "8px" }}>
+                        <h2 style={{ fontSize: "1.75rem", fontWeight: 800, color: "white", margin: 0, letterSpacing: "-0.02em" }}>
+                            Ganesh Kumar P
+                        </h2>
+                        <a
+                            href="mailto:gk044996@gmail.com"
+                            style={{
+                                textDecoration: "none",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                color: "#c7d2fe",
+                                fontSize: "0.95rem",
+                                fontWeight: 600,
+                                background: "rgba(99, 102, 241, 0.12)",
+                                border: "1px solid rgba(99, 102, 241, 0.3)",
+                                padding: "0.45rem 1rem",
+                                borderRadius: "999px",
+                                transition: "all 0.2s"
+                            }}
+                        >
                             <span>✉️</span> <span>gk044996@gmail.com</span>
-                        </div>
-                        <p style={{ marginTop: "1rem", color: "var(--text-main)", opacity: 0.9, lineHeight: "1.6", maxWidth: "500px" }}>
-                            Smart English Coach is a highly advanced platform designed to seamlessly merge native-level idioms, automated testing, and comprehensive grammatical frameworks into one entirely offline artificial simulation.
+                        </a>
+                        <p style={{
+                            marginTop: "0.75rem",
+                            color: "var(--text-muted)",
+                            lineHeight: 1.7,
+                            maxWidth: "520px",
+                            fontSize: "1rem"
+                        }}>
+                            Smart English Coach combines Gemini AI generation, speech recognition heuristics, and curated conversational frameworks into an accessible offline and cloud-powered learning journey.
                         </p>
                     </div>
                 </div>
 
-                {/* Feedback Form (Formspark) */}
-                <h3 style={{ textTransform: "uppercase", letterSpacing: "1px", color: "var(--text-muted)", fontSize: "1rem", marginBottom: "1.5rem" }}>Platform Feedback</h3>
-                
-                <div className="glass-panel" style={{ padding: "3rem", textAlign: "left", background: "var(--surface)", border: "1px solid var(--border)" }}>
-                    <p style={{ marginBottom: "2rem", color: "white", fontSize: "1.1rem" }}>
-                        Your thoughts drive this platform! Let me know exactly how this website was useful to you, or what updates you strictly need in the future.
-                    </p>
+                {/* Feedback Form */}
+                <div style={{ textAlign: "left" }}>
+                    <div style={{ marginBottom: "1.25rem" }}>
+                        <span style={{ fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--text-subtle)" }}>
+                            Community Input
+                        </span>
+                        <h3 style={{ fontSize: "1.35rem", fontWeight: 800, color: "#ffffff", margin: "0.25rem 0 0" }}>
+                            Platform Feedback & Feature Ideas
+                        </h3>
+                    </div>
                     
-                    <form action="https://submit-form.com/9gTpxjmNg" method="POST" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                    <div className="glass-panel" style={{
+                        padding: "2.5rem",
+                        borderRadius: "18px",
+                        background: "rgba(15, 20, 34, 0.75)"
+                    }}>
+                        <p style={{ marginBottom: "2rem", color: "var(--text-muted)", fontSize: "1rem", lineHeight: 1.6 }}>
+                            Have ideas for new learning tracks or suggestions to improve the AI coach? Send your thoughts directly below.
+                        </p>
                         
-                        {/* Hidden field to set redirect after form submit (optional, but highly recommended by Formspark to avoid a blank white API page) */}
-                        <input type="hidden" name="_redirect" value={window.location.href} />
-                        
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                            <label htmlFor="name" style={{ color: "var(--text-muted)", fontSize: "0.9rem", textTransform: "uppercase", fontWeight: "bold" }}>Your Name</label>
-                            <input 
-                                type="text" 
-                                id="name" 
-                                name="name" 
-                                placeholder="E.g., John Doe" 
-                                required 
-                                style={{ padding: "1rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: "1rem", outline: "none" }}
-                            />
-                        </div>
+                        <form action="https://submit-form.com/9gTpxjmNg" method="POST" style={{ display: "flex", flexDirection: "column", gap: "1.35rem" }}>
+                            <input type="hidden" name="_redirect" value={window.location.href} />
+                            
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                                <label htmlFor="name" style={{ color: "var(--text-subtle)", fontSize: "0.78rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em" }}>Your Name</label>
+                                <input 
+                                    type="text" 
+                                    id="name" 
+                                    name="name" 
+                                    placeholder="E.g., John Doe" 
+                                    required 
+                                    className="form-input"
+                                />
+                            </div>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                            <label htmlFor="email" style={{ color: "var(--text-muted)", fontSize: "0.9rem", textTransform: "uppercase", fontWeight: "bold" }}>Your Email</label>
-                            <input 
-                                type="email" 
-                                id="email" 
-                                name="email" 
-                                placeholder="E.g., you@example.com" 
-                                required 
-                                style={{ padding: "1rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: "1rem", outline: "none" }}
-                            />
-                        </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                                <label htmlFor="email" style={{ color: "var(--text-subtle)", fontSize: "0.78rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em" }}>Your Email</label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    name="email" 
+                                    placeholder="E.g., you@example.com" 
+                                    required 
+                                    className="form-input"
+                                />
+                            </div>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                            <label htmlFor="message" style={{ color: "var(--text-muted)", fontSize: "0.9rem", textTransform: "uppercase", fontWeight: "bold" }}>Your Message / Feature Request</label>
-                            <textarea
-                                id="message"
-                                name="message"
-                                placeholder="I loved having infinite Scenarios because..."
-                                required
-                                rows="5"
-                                style={{ padding: "1rem", borderRadius: "8px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "white", fontSize: "1rem", outline: "none", resize: "vertical", fontFamily: "inherit" }}
-                            ></textarea>
-                        </div>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                                <label htmlFor="message" style={{ color: "var(--text-subtle)", fontSize: "0.78rem", textTransform: "uppercase", fontWeight: 700, letterSpacing: "0.06em" }}>Your Message / Feature Request</label>
+                                <textarea
+                                    id="message"
+                                    name="message"
+                                    placeholder="What features or exercises would you like to see next?"
+                                    required
+                                    rows="4"
+                                    className="form-input"
+                                    style={{ resize: "vertical" }}
+                                />
+                            </div>
 
-                        <button 
-                            type="submit" 
-                            className="btn btn-primary"
-                            style={{ padding: "1rem", marginTop: "1rem", fontSize: "1.1rem", borderRadius: "8px", background: "var(--primary)", borderColor: "var(--primary)" }}
-                        >
-                            🚀 Submit Feedback
-                        </button>
-                    </form>
+                            <button 
+                                type="submit" 
+                                className="btn btn-primary"
+                                style={{ padding: "0.95rem", marginTop: "0.5rem", fontSize: "1.05rem", borderRadius: "12px" }}
+                            >
+                                🚀 Send Feedback
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
             </main>

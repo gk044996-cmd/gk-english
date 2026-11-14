@@ -1,342 +1,1138 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+    grammarSections,
+    TOTAL_GRAMMAR_TOPICS,
+    getTopicById,
+    getNextTopic,
+    getPrevTopic,
+    getTopicIndexInfo
+} from "../data/grammarData";
+
+const STORAGE_KEY = "englishCoach_grammarCompleted";
 
 const Grammar = () => {
     const navigate = useNavigate();
 
-    const sections = [
-        {
-            category: "Basic Grammar",
-            topics: [
-                { 
-                    id: "nouns", 
-                    title: "Nouns (Naming Words)", 
-                    definition: "A noun is a naming word. It names a person, place, thing, or concept.",
-                    formula: "[Article: a/an/the] + [Adjective] + [Noun]",
-                    examples: [
-                        "The *dog* barks out loud.", 
-                        "She truly loves listening to *music*.",
-                        "His *happiness* was obvious."
-                    ],
-                    proTip: "If you can put 'a', 'an', or 'the' before a word, it's almost always a noun!",
-                    beginner: "Nouns are the building blocks of sentences. They tell people *what* or *who* you are talking about. Think of them as labels on boxes.",
-                    intermediate: "Nouns can be countable (things you can count: one 'apple', two 'apples') or uncountable (things you can't count: 'water', 'music').",
-                    advanced: "Abstract nouns refer to ideas or concepts (e.g., 'freedom', 'anger'). Collective nouns refer to groups (e.g., 'a *flock* of birds'). Generally, uncountable nouns take singular verbs.",
-                    commonMistakes: [
-                        { wrong: "I need some informations.", right: "I need some information.", why: "'Information' is uncountable, so it never takes an 's'." }
-                    ],
-                    practiceQ: { text: "Which word is the noun in: 'The happy cat slept.'", options: ["The", "happy", "cat", "slept"], answer: "cat" }
-                },
-                { 
-                    id: "pronouns", 
-                    title: "Pronouns (Replacements)", 
-                    definition: "A pronoun is used in place of a noun so you don't have to keep repeating the same name over and over.",
-                    formula: "[Pronoun] + [Verb] + [Object Pronoun]",
-                    examples: [
-                        "John is tall. *He* plays basketball daily.", 
-                        "Mary and Paul are late. *They* missed the train.",
-                        "This coffee is strictly for *me*."
-                    ],
-                    proTip: "Without pronouns, you'd sound like a robot: 'John went to John's house because John forgot John's keys.'",
-                    beginner: "Subject Pronouns (I, you, he, she, it, we, they) perform actions. Example: *He* runs.",
-                    intermediate: "Object Pronouns (me, you, him, her, it, us, them) receive the action. Example: The dog bit *him*.",
-                    advanced: "Reflexive pronouns (myself, yourself) reflect the action back. Example: 'I will do it *myself*.' Use 'whose' for possession (The man *whose* car was stolen).",
-                    commonMistakes: [
-                        { wrong: "Me and him went to the store.", right: "He and I went to the store.", why: "You must use Subject Pronouns (He, I) when they are doing the action (going to the store)." }
-                    ],
-                    practiceQ: { text: "Choose the correct pronoun: '___ is my best friend.'", options: ["Him", "He", "Us", "Them"], answer: "He" }
-                },
-                { 
-                    id: "verbs", 
-                    title: "Verbs (Action Words)", 
-                    definition: "A verb is an action word or a word that shows a state of being.",
-                    formula: "[Subject] + [Verb] + [Object]",
-                    examples: [
-                        "I *run* every morning before breakfast.", 
-                        "She *is* an exceptional doctor.", 
-                        "We *have been working* actively."
-                    ],
-                    proTip: "Every single complete sentence MUST have at least one verb. It is the engine of the sentence.",
-                    beginner: "Action verbs are things you can manually do (jump, eat, sleep). State verbs show how things are right now (am, is, are, seem).",
-                    intermediate: "Verbs change their form (tense) to show *when* something happened: happening now (am playing), happened in the past (played).",
-                    advanced: "Modal verbs (can, could, should, must, might) attach to the main verb, completely altering its meaning to show ability, permission, or obligation.",
-                    commonMistakes: [
-                        { wrong: "She can sings very well.", right: "She can sing very well.", why: "After a modal verb like 'can' or 'must', the main verb must always be strictly base form without any 's'." }
-                    ],
-                    practiceQ: { text: "Identify the verb: 'She sings beautifully.'", options: ["She", "sings", "beautifully", "None"], answer: "sings" }
-                }
-            ]
-        },
-        {
-            category: "Tenses",
-            topics: [
-                { 
-                    id: "present-simple", 
-                    title: "Present Simple (Routines)", 
-                    definition: "Used to describe habits, daily routines, general truths, and fixed schedules.",
-                    formula: "Subject + Verb(s/es) + Object",
-                    examples: [
-                        "I *drink* two cups of coffee every day.", 
-                        "Water *boils* exactly at 100 degrees Celsius.", 
-                        "The main train *leaves* at 8 PM tonight."
-                    ],
-                    proTip: "Don't forget the 's' for he/she/it! (I play -> He play*s*)",
-                    beginner: "Use this tense for daily routines. 'I wake up, I brush my teeth, I go to work.' Use words like 'usually' or 'always'.",
-                    intermediate: "We use auxiliary verbs 'do/does' for questions and negatives. 'Do you like tea?' 'She does not (doesn't) like tea.'",
-                    advanced: "It can also be used for future scheduled events officially: 'The flight arrives tomorrow morning at 6 AM.'",
-                    commonMistakes: [
-                        { wrong: "He don't like pizza.", right: "He doesn't like pizza.", why: "'He', 'She', and 'It' require 'does/doesn't', not 'do/don't'." }
-                    ],
-                    practiceQ: { text: "Correct the sentence: 'He don't like pizza.'", options: ["He doesn't likes pizza", "He not like pizza", "He doesn't like pizza", "He don't likes pizza"], answer: "He doesn't like pizza" }
-                },
-                { 
-                    id: "past-simple", 
-                    title: "Past Simple (Finished Actions)", 
-                    definition: "Used for actions that started and completely finished at a specific time in the past.",
-                    formula: "Subject + Verb(ed/Irregular Past) + Object",
-                    examples: [
-                        "I *visited* Paris with my family last year.", 
-                        "She *didn't go* to the party because she was sick.", 
-                        "Abraham Lincoln *abolished* slavery."
-                    ],
-                    proTip: "Keywords you will often see with Past Simple: yesterday, last week, ago, in 1990.",
-                    beginner: "To make regular verbs past tense, just add '-ed' (play -> played, watch -> watched).",
-                    intermediate: "Many English verbs are irregular and completely change form (go -> went, see -> saw, buy -> bought). You simply must memorize these.",
-                    advanced: "In questions and negatives with 'did/didn't', the main verb goes back to its base infinitive form. 'Did you *go*?' (NEVER say 'Did you went?').",
-                    commonMistakes: [
-                        { wrong: "I didn't went to the store.", right: "I didn't go to the store.", why: "Because 'didn't' already shows the past tense, the main verb reverts to its original root form." }
-                    ],
-                    practiceQ: { text: "Which is correct?", options: ["I buyed a car.", "I bought a car.", "I have bought a car last week.", "I did bought a car."], answer: "I bought a car." }
-                },
-                { 
-                    id: "future-simple", 
-                    title: "Future Simple (Predictions)", 
-                    definition: "Used for predictions, promises, or spontaneous decisions about the future.",
-                    formula: "Subject + will + Verb (base form)",
-                    examples: [
-                        "I *will help* you with those heavy bags.", 
-                        "It *will probably rain* heavily tomorrow.", 
-                        "I *won't tell* anyone your secret, I promise."
-                    ],
-                    proTip: "Use 'will' for quick decisions made right now. Use 'going to' for plans you already made before.",
-                    beginner: "Just use 'will' + the base verb. 'I will eat', 'She will run'. Remember 'will' does not change form.",
-                    intermediate: "We often contract 'will' to ''ll' in spoken English: 'I'll', 'She'll', 'They'll'. The negative is 'will not' or 'won't'.",
-                    advanced: "For future predictions based on concrete present evidence, 'going to' is strongly preferred over 'will'. 'Look at those dark clouds, it's *going to* rain!'",
-                    commonMistakes: [
-                        { wrong: "I will to see you tomorrow.", right: "I will see you tomorrow.", why: "Never use 'to' after 'will'. 'Will' immediately connects to the base verb directly." }
-                    ],
-                    practiceQ: { text: "A: The phone is ringing. B: I ____ answer it.", options: ["will", "am going to", "answer", "will answering"], answer: "will" }
-                }
-            ]
-        },
-        {
-            category: "Advanced",
-            topics: [
-                { 
-                    id: "conditionals", 
-                    title: "Conditionals (If... Then...)", 
-                    definition: "Sentences that describe the result of something that might happen or might have happened but didn't.",
-                    formula: "If + [Condition Clause], [Result Clause]",
-                    examples: [
-                        "Zero: If you *heat* ice, it *melts*.", 
-                        "First: If it *rains* tomorrow, I *will stay* home.", 
-                        "Second: If I *won* the lottery, I *would buy* a massive boat."
-                    ],
-                    proTip: "Conditionals always have two parts: the 'If' clause and the main clause. You can swap their order!",
-                    beginner: "Zero conditional is for basic scientific facts or routines. 'If' + present, present. (If I am tired, I sleep).",
-                    intermediate: "First conditional is for real future possibilities (If you study -> will pass). Second conditional is for imaginary present/future situations (If I was rich -> would travel).",
-                    advanced: "Third conditional is specifically for past regrets that are strictly impossible now. 'If' + past perfect, 'would have' + past participle. (If I had known, I would have helped you).",
-                    commonMistakes: [
-                        { wrong: "If I will see him, I will tell him.", right: "If I see him, I will tell him.", why: "We never use 'will' directly inside the 'If' half of the sentence in basic conditionals." }
-                    ],
-                    practiceQ: { text: "If it rains tomorrow, we ___ at home.", options: ["stay", "will stay", "would stay", "would have stayed"], answer: "will stay" }
-                },
-                { 
-                    id: "passive-voice", 
-                    title: "Passive Voice (Object Focus)", 
-                    definition: "A sentence where the subject receives the action rather than doing it. Used when the 'doer' is unknown or unimportant.",
-                    formula: "Object + to be (conjugated) + Past Participle (V3)",
-                    examples: [
-                        "Active: The dog bit the man.", 
-                        "Passive: The man *was bitten* by the dog.", 
-                        "The historic house *was built* entirely in 1990."
-                    ],
-                    proTip: "Use the passive to sound neutral, scientific, or when hiding blame (e.g., 'Mistakes were made').",
-                    beginner: "The structure requires the 'To Be' verb + Past Participle (verb-3). Example: The pizza is eaten.",
-                    intermediate: "The 'To Be' verb changes tense based on when the action happened. Present: 'is done'. Past: 'was done'. Future: 'will be done'. Present Continuous: 'is being done'.",
-                    advanced: "You can include the 'doer' at the absolute end using 'by'. Sometimes, the passive is overused in formal writing, making it sound very weak.",
-                    commonMistakes: [
-                        { wrong: "My car was stole yesterday.", right: "My car was stolen yesterday.", why: "Passive voice always requires the 3rd form (Past Participle) of the verb, never the Past Simple form." }
-                    ],
-                    practiceQ: { text: "Change to passive: 'Someone stole my wallet.'", options: ["My wallet is stolen.", "My wallet was stolen.", "My wallet stolen.", "Someone was stolen."], answer: "My wallet was stolen." }
-                }
-            ]
+    // Active topic state
+    const [activeTopicId, setActiveTopicId] = useState("nouns");
+    const activeTopic = getTopicById(activeTopicId);
+
+    // Completed topics state (persisted in localStorage)
+    const [completedTopics, setCompletedTopics] = useState(() => {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
         }
-    ];
+    });
 
-    const [activeTopic, setActiveTopic] = useState(sections[0].topics[0]);
-    const [practiceAnswer, setPracticeAnswer] = useState(null);
+    // Practice Quiz Engine state for the current active topic
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [userAnswers, setUserAnswers] = useState({}); // { [questionId]: { chosen, isCorrect } }
+    const [quizCompleted, setQuizCompleted] = useState(false);
 
-    const handleTopicChange = (topic) => {
-        setActiveTopic(topic);
-        setPracticeAnswer(null);
+    // Filter/search state for sidebar
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+    // Reset quiz state when active topic changes
+    useEffect(() => {
+        setCurrentQuestionIndex(0);
+        setSelectedOption(null);
+        setIsSubmitted(false);
+        setUserAnswers({});
+        setQuizCompleted(false);
+    }, [activeTopicId]);
+
+    // Persist completed topics
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(completedTopics));
+        } catch (err) {
+            console.error("Failed to save completed topics to localStorage:", err);
+        }
+    }, [completedTopics]);
+
+    const isTopicCompleted = completedTopics.includes(activeTopic.id);
+
+    const toggleTopicCompletion = () => {
+        setCompletedTopics((prev) => {
+            if (prev.includes(activeTopic.id)) {
+                return prev.filter((id) => id !== activeTopic.id);
+            } else {
+                return [...prev, activeTopic.id];
+            }
+        });
     };
 
+    const handleTopicChange = (topicId) => {
+        setActiveTopicId(topicId);
+        setIsMobileDrawerOpen(false);
+        // Scroll content area back to top
+        const contentEl = document.getElementById("grammar-content-container");
+        if (contentEl) {
+            contentEl.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    };
+
+    const nextTopic = getNextTopic(activeTopic.id);
+    const prevTopic = getPrevTopic(activeTopic.id);
+    const indexInfo = getTopicIndexInfo(activeTopic.id);
+
+    const exercises = activeTopic.exercises || [];
+    const currentQuestion = exercises[currentQuestionIndex];
+
+    const handleSelectOption = (opt) => {
+        if (isSubmitted) return;
+        setSelectedOption(opt);
+    };
+
+    const handleSubmitAnswer = () => {
+        if (!selectedOption || !currentQuestion) return;
+        const isCorrect = selectedOption === currentQuestion.answer;
+        setUserAnswers((prev) => ({
+            ...prev,
+            [currentQuestion.id]: {
+                chosen: selectedOption,
+                isCorrect
+            }
+        }));
+        setIsSubmitted(true);
+    };
+
+    const handleNextQuestion = () => {
+        if (currentQuestionIndex < exercises.length - 1) {
+            setCurrentQuestionIndex((prev) => prev + 1);
+            setSelectedOption(null);
+            setIsSubmitted(false);
+        } else {
+            setQuizCompleted(true);
+            // Auto mark topic as completed if score is passing (at least 75%)
+            const totalScore = Object.values(userAnswers).filter((a) => a.isCorrect).length;
+            if (totalScore >= Math.ceil(exercises.length * 0.75)) {
+                if (!completedTopics.includes(activeTopic.id)) {
+                    setCompletedTopics((prev) => [...prev, activeTopic.id]);
+                }
+            }
+        }
+    };
+
+    const handleRetryQuiz = () => {
+        setCurrentQuestionIndex(0);
+        setSelectedOption(null);
+        setIsSubmitted(false);
+        setUserAnswers({});
+        setQuizCompleted(false);
+    };
+
+    const correctCount = Object.values(userAnswers).filter((a) => a.isCorrect).length;
+    const progressPercent = Math.round((completedTopics.length / TOTAL_GRAMMAR_TOPICS) * 100);
+
+    // Filtered sections for sidebar search
+    const filteredSections = grammarSections.map((sec) => ({
+        ...sec,
+        topics: sec.topics.filter(
+            (t) =>
+                t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                t.subtitle?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                t.definition?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+    })).filter((sec) => sec.topics.length > 0);
+
     return (
-        <div className="app-container">
-            <main className="main-content flex gap-6 animate-fade-in" style={{ padding: "0 2rem", marginTop: "2rem", maxWidth: "1400px" }}>
-                
-                {/* Sidebar Navigation */}
-                <aside className="glass-panel stagger-1" style={{ width: "320px", flexShrink: 0, padding: "1.5rem 1rem", height: "calc(100vh - 120px)", position: "sticky", top: "100px", overflowY: "auto" }}>
-                    <h2 style={{ fontSize: "1.2rem", marginBottom: "1.5rem", paddingLeft: "0.5rem" }}>Grammar Curriculum</h2>
-                    
-                    {sections.map((sec, idx) => (
-                        <div key={idx} className="mb-6">
-                            <h4 style={{ color: "var(--text-muted)", fontSize: "0.85rem", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.5rem", paddingLeft: "0.5rem" }}>
-                                {sec.category}
-                            </h4>
-                            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                                {sec.topics.map(topic => {
-                                    const isActive = activeTopic.id === topic.id;
-                                    return (
-                                        <li key={topic.id}>
-                                            <button 
-                                                onClick={() => handleTopicChange(topic)}
-                                                style={{
-                                                    width: "100%", textAlign: "left", padding: "0.8rem 0.5rem",
-                                                    background: isActive ? "rgba(99, 102, 241, 0.15)" : "transparent",
-                                                    border: "none", borderLeft: `4px solid ${isActive ? "var(--primary)" : "transparent"}`,
-                                                    color: isActive ? "white" : "var(--text-main)",
-                                                    cursor: "pointer", fontWeight: isActive ? "600" : "400",
-                                                    fontSize: "0.95rem", transition: "all 0.2s ease", borderRadius: "0 8px 8px 0"
-                                                }}
-                                                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.03)"; }}
-                                                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
-                                            >
-                                                {topic.title}
-                                            </button>
-                                        </li>
-                                    );
-                                })}
-                            </ul>
-                        </div>
-                    ))}
-                </aside>
+        <div className="container" style={{ paddingTop: "1.5rem", paddingBottom: "3rem" }}>
+            {/* Mobile Topic Quick-Selector Bar (Shown on < 1024px) */}
+            <div className="grammar-mobile-nav glass-panel" style={{
+                display: "none",
+                width: "100%",
+                marginBottom: "1rem",
+                padding: "0.85rem 1rem",
+                borderRadius: "14px",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "0.75rem",
+                border: "1px solid rgba(139, 92, 246, 0.35)",
+                background: "rgba(15, 20, 34, 0.9)"
+            }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontSize: "0.68rem", color: "#a78bfa", fontWeight: 700, textTransform: "uppercase" }}>
+                        Lesson {indexInfo.positionText} • {completedTopics.length}/40 Done
+                    </div>
+                    <div style={{ fontSize: "1.05rem", fontWeight: 800, color: "#ffffff", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        {activeTopic.title}
+                    </div>
+                </div>
+                <button
+                    onClick={() => setIsMobileDrawerOpen(prev => !prev)}
+                    style={{
+                        padding: "0.5rem 0.85rem",
+                        borderRadius: "10px",
+                        border: "1px solid rgba(139, 92, 246, 0.45)",
+                        background: "rgba(139, 92, 246, 0.22)",
+                        color: "#ffffff",
+                        fontSize: "0.8rem",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                        flexShrink: 0
+                    }}
+                >
+                    {isMobileDrawerOpen ? "Close ✕" : "All 40 Topics ▾"}
+                </button>
+            </div>
 
-                {/* Content Area */}
-                <section className="glass-panel stagger-2 animate-slide-right" style={{ flex: 1, height: "calc(100vh - 120px)", overflowY: "auto", position: "relative" }}>
-                    <div style={{ marginBottom: "2rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <h1 style={{ fontSize: "2.8rem", marginBottom: "0.5rem", letterSpacing: "-1px" }}>{activeTopic.title}</h1>
-                        </div>
-                        
-                        <p style={{ fontSize: "1.3rem", color: "var(--text-main)", opacity: 0.9, marginBottom: "1.5rem", fontWeight: "300", lineHeight: "1.6" }}>
-                            {activeTopic.definition}
-                        </p>
-
-                        {/* Visual Grammar Formula block */}
-                        {activeTopic.formula && (
-                            <div style={{ background: "rgba(139, 92, 246, 0.1)", border: "1px dashed var(--secondary)", padding: "1.2rem", borderRadius: "8px", marginBottom: "2rem", display: "inline-block" }}>
-                                <span style={{ fontSize: "0.85rem", textTransform: "uppercase", color: "var(--secondary)", fontWeight: "bold", letterSpacing: "1px", display: "block", marginBottom: "0.5rem" }}>
-                                    Structure Formula
-                                </span>
-                                <span style={{ fontFamily: "monospace", fontSize: "1.2rem", color: "white" }}>
-                                    {activeTopic.formula}
-                                </span>
+            {/* Mobile Curriculum Drawer Modal when open */}
+            {isMobileDrawerOpen && (
+                <div
+                    className="mobile-grammar-modal animate-fade-in"
+                    onClick={() => setIsMobileDrawerOpen(false)}
+                    style={{
+                        position: "fixed",
+                        top: "58px",
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: "rgba(4, 6, 12, 0.85)",
+                        backdropFilter: "blur(18px)",
+                        WebkitBackdropFilter: "blur(18px)",
+                        zIndex: 95,
+                        display: "flex",
+                        flexDirection: "column",
+                        padding: "1rem",
+                        overflowY: "auto"
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        className="glass-panel"
+                        style={{
+                            width: "100%",
+                            maxWidth: "480px",
+                            margin: "0 auto",
+                            borderRadius: "18px",
+                            padding: "1.25rem",
+                            border: "1px solid rgba(139, 92, 246, 0.35)",
+                            background: "rgba(15, 20, 34, 0.98)",
+                            maxHeight: "85vh",
+                            display: "flex",
+                            flexDirection: "column"
+                        }}
+                    >
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
+                            <div>
+                                <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#a78bfa", textTransform: "uppercase" }}>
+                                    Curriculum Overview ({completedTopics.length}/{TOTAL_GRAMMAR_TOPICS})
+                                </div>
+                                <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800, color: "#ffffff" }}>
+                                    Select a Topic
+                                </h3>
                             </div>
-                        )}
-                        
-                        <div style={{ background: "rgba(255,255,255,0.02)", padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--border)", marginBottom: "2rem" }}>
-                            <h3 style={{ fontSize: "1rem", color: "var(--text-muted)", textTransform: "uppercase", marginBottom: "1rem" }}>Examples in Context</h3>
-                            <ul style={{ paddingLeft: "1.5rem", margin: 0 }}>
-                                {activeTopic.examples.map((ex, i) => (
-                                    <li key={i} style={{ marginBottom: "0.75rem", fontSize: "1.15rem" }} dangerouslySetInnerHTML={{__html: ex.replace(/\*(.*?)\*/g, "<span style='color: var(--primary); font-weight: bold;'>$1</span>")}} />
-                                ))}
-                            </ul>
+                            <button
+                                onClick={() => setIsMobileDrawerOpen(false)}
+                                style={{
+                                    background: "rgba(255, 255, 255, 0.08)",
+                                    border: "1px solid rgba(255, 255, 255, 0.1)",
+                                    color: "var(--text-muted)",
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "8px",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                ✕
+                            </button>
                         </div>
 
-                        {/* Common Mistakes Visual Widget */}
-                        <div style={{ marginBottom: "2.5rem" }}>
-                            <h3 style={{ fontSize: "1.2rem", marginBottom: "1rem", color: "white" }}>⚠️ Common Mistakes Avoidance</h3>
-                            {activeTopic.commonMistakes.map((mistake, i) => (
-                                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.5rem", background: "var(--surface)", padding: "1.5rem", borderRadius: "12px", border: "1px solid var(--border)" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", color: "var(--error)", textDecoration: "line-through", fontSize: "1.1rem" }}>
-                                        <span style={{ fontSize: "1.5rem" }}>❌</span> {mistake.wrong}
+                        {/* Search Input */}
+                        <div style={{ marginBottom: "1rem" }}>
+                            <input
+                                type="text"
+                                placeholder="Search 40 topics..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{
+                                    width: "100%",
+                                    padding: "0.6rem 0.85rem",
+                                    background: "rgba(15, 20, 34, 0.7)",
+                                    border: "1px solid rgba(255, 255, 255, 0.12)",
+                                    borderRadius: "10px",
+                                    color: "#ffffff",
+                                    fontSize: "0.88rem",
+                                    outline: "none"
+                                }}
+                            />
+                        </div>
+
+                        {/* Scrollable Topic List */}
+                        <div style={{ flex: 1, overflowY: "auto", paddingRight: "0.25rem" }}>
+                            {filteredSections.map((sec, idx) => (
+                                <div key={idx} style={{ marginBottom: "1.25rem" }}>
+                                    <div style={{
+                                        color: "#a78bfa",
+                                        fontSize: "0.72rem",
+                                        fontWeight: 800,
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.08em",
+                                        marginBottom: "0.4rem"
+                                    }}>
+                                        {sec.category}
                                     </div>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "1rem", color: "var(--success)", fontWeight: "bold", fontSize: "1.2rem" }}>
-                                        <span style={{ fontSize: "1.5rem" }}>✅</span> {mistake.right}
-                                    </div>
-                                    <p style={{ marginTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: "1rem", color: "var(--text-muted)", fontSize: "0.95rem" }}>
-                                        <strong style={{ color: "white" }}>Why?</strong> {mistake.why}
-                                    </p>
+                                    <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                                        {sec.topics.map((topic) => {
+                                            const isActive = activeTopic.id === topic.id;
+                                            const isDone = completedTopics.includes(topic.id);
+                                            return (
+                                                <li key={topic.id}>
+                                                    <button
+                                                        onClick={() => handleTopicChange(topic.id)}
+                                                        style={{
+                                                            width: "100%",
+                                                            textAlign: "left",
+                                                            padding: "0.65rem 0.85rem",
+                                                            background: isActive ? "rgba(139, 92, 246, 0.22)" : "rgba(255, 255, 255, 0.02)",
+                                                            border: isActive ? "1px solid #8b5cf6" : "1px solid rgba(255, 255, 255, 0.06)",
+                                                            color: isActive ? "#ffffff" : isDone ? "#e2e8f0" : "var(--text-muted)",
+                                                            borderRadius: "9px",
+                                                            cursor: "pointer",
+                                                            fontSize: "0.88rem",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            justifyContent: "space-between"
+                                                        }}
+                                                    >
+                                                        <span style={{ fontWeight: isActive ? 800 : 500 }}>
+                                                            {topic.title}
+                                                        </span>
+                                                        {isDone && <span style={{ color: "#34d399", fontWeight: 700 }}>✓</span>}
+                                                    </button>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
                                 </div>
                             ))}
                         </div>
+                    </div>
+                </div>
+            )}
 
-                        <div style={{ background: "rgba(16, 185, 129, 0.05)", borderLeft: "4px solid var(--success)", padding: "1.2rem", borderRadius: "0 8px 8px 0", marginBottom: "3rem" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--success)", fontWeight: "bold", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
-                                <span>💡</span> <span>Pro Tip</span>
+            <main className="grammar-layout" style={{ position: "relative" }}>
+                
+                {/* ===================== SIDEBAR (Desktop) ===================== */}
+                <aside
+                    className="grammar-sidebar glass-panel animate-fade-in"
+                    style={{
+                        width: "320px",
+                        flexShrink: 0,
+                        maxHeight: "calc(100vh - 110px)",
+                        display: "flex",
+                        flexDirection: "column",
+                        position: "sticky",
+                        top: "95px",
+                        padding: "1.25rem",
+                        borderRadius: "18px",
+                        border: "1px solid var(--border)"
+                    }}
+                >
+                    {/* Curriculum Header & Progress */}
+                    <div style={{ paddingBottom: "1rem", borderBottom: "1px solid rgba(255, 255, 255, 0.08)", marginBottom: "1rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.4rem" }}>
+                            <span style={{ fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "#a78bfa" }}>
+                                Grammar Mastery
+                            </span>
+                            <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-subtle)" }}>
+                                {completedTopics.length} / {TOTAL_GRAMMAR_TOPICS} done
+                            </span>
+                        </div>
+                        <h2 style={{ fontSize: "1.25rem", fontWeight: 800, margin: "0 0 0.75rem 0", color: "#ffffff" }}>
+                            Curriculum
+                        </h2>
+
+                        {/* Progress Bar */}
+                        <div style={{ width: "100%", height: "8px", background: "rgba(255, 255, 255, 0.08)", borderRadius: "999px", overflow: "hidden" }}>
+                            <div
+                                style={{
+                                    width: `${progressPercent}%`,
+                                    height: "100%",
+                                    background: "linear-gradient(90deg, #8b5cf6 0%, #a855f7 50%, #10b981 100%)",
+                                    borderRadius: "999px",
+                                    transition: "width 0.4s ease"
+                                }}
+                            />
+                        </div>
+                    </div>
+
+                    {/* Search Input */}
+                    <div style={{ marginBottom: "1rem" }}>
+                        <input
+                            type="text"
+                            placeholder="Search 40 topics..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{
+                                width: "100%",
+                                padding: "0.55rem 0.85rem",
+                                background: "rgba(15, 20, 34, 0.7)",
+                                border: "1px solid rgba(255, 255, 255, 0.1)",
+                                borderRadius: "10px",
+                                color: "#ffffff",
+                                fontSize: "0.88rem",
+                                outline: "none",
+                                boxSizing: "border-box"
+                            }}
+                        />
+                    </div>
+
+                    {/* Scrollable Topic List */}
+                    <div style={{ flex: 1, overflowY: "auto", paddingRight: "0.25rem" }}>
+                        {filteredSections.map((sec, idx) => (
+                            <div key={idx} style={{ marginBottom: "1.35rem" }}>
+                                <div
+                                    style={{
+                                        color: "#a78bfa",
+                                        fontSize: "0.72rem",
+                                        fontWeight: 800,
+                                        textTransform: "uppercase",
+                                        letterSpacing: "0.08em",
+                                        marginBottom: "0.5rem",
+                                        paddingLeft: "0.4rem",
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center"
+                                    }}
+                                >
+                                    <span>{sec.category}</span>
+                                    <span style={{ color: "var(--text-subtle)", fontSize: "0.68rem" }}>
+                                        {sec.topics.filter((t) => completedTopics.includes(t.id)).length} / {sec.topics.length}
+                                    </span>
+                                </div>
+                                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                                    {sec.topics.map((topic) => {
+                                        const isActive = activeTopic.id === topic.id;
+                                        const isDone = completedTopics.includes(topic.id);
+                                        return (
+                                            <li key={topic.id}>
+                                                <button
+                                                    onClick={() => handleTopicChange(topic.id)}
+                                                    style={{
+                                                        width: "100%",
+                                                        textAlign: "left",
+                                                        padding: "0.6rem 0.75rem",
+                                                        background: isActive ? "rgba(139, 92, 246, 0.18)" : "transparent",
+                                                        border: "1px solid",
+                                                        borderColor: isActive ? "rgba(139, 92, 246, 0.45)" : "transparent",
+                                                        color: isActive ? "#ffffff" : isDone ? "#e2e8f0" : "var(--text-muted)",
+                                                        cursor: "pointer",
+                                                        fontWeight: isActive ? 700 : 500,
+                                                        fontSize: "0.88rem",
+                                                        letterSpacing: "-0.01em",
+                                                        transition: "all 0.15s ease",
+                                                        borderRadius: "9px",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "space-between",
+                                                        gap: "0.5rem",
+                                                        boxShadow: isActive ? "0 4px 14px -4px rgba(139, 92, 246, 0.35)" : "none"
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        if (!isActive) {
+                                                            e.currentTarget.style.background = "rgba(255, 255, 255, 0.04)";
+                                                            e.currentTarget.style.color = "#ffffff";
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (!isActive) {
+                                                            e.currentTarget.style.background = "transparent";
+                                                            e.currentTarget.style.color = isDone ? "#e2e8f0" : "var(--text-muted)";
+                                                        }
+                                                    }}
+                                                >
+                                                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", overflow: "hidden" }}>
+                                                        <span
+                                                            style={{
+                                                                width: "6px",
+                                                                height: "6px",
+                                                                borderRadius: "50%",
+                                                                background: isActive ? "#a855f7" : isDone ? "#10b981" : "rgba(255, 255, 255, 0.2)",
+                                                                flexShrink: 0
+                                                            }}
+                                                        />
+                                                        <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                                            {topic.title}
+                                                        </span>
+                                                    </div>
+                                                    {isDone && (
+                                                        <span style={{ color: "#34d399", fontSize: "0.78rem", fontWeight: 700 }} title="Completed">
+                                                            ✓
+                                                        </span>
+                                                    )}
+                                                </button>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
                             </div>
-                            <p style={{ margin: 0, fontSize: "1.05rem" }}>{activeTopic.proTip}</p>
+                        ))}
+                    </div>
+                </aside>
+
+                {/* ===================== MAIN LESSON CONTENT ===================== */}
+                <section
+                    id="grammar-content-container"
+                    className="grammar-content glass-panel animate-slide-right"
+                    style={{
+                        flex: 1,
+                        position: "relative",
+                        borderRadius: "18px",
+                        border: "1px solid var(--border)"
+                    }}
+                >
+                    {/* Header: Section badge, lesson position, completion button */}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                            <span className="badge badge-primary" style={{ textTransform: "uppercase", fontSize: "0.75rem", letterSpacing: "0.05em" }}>
+                                {activeTopic.sectionCategory || "English Grammar"}
+                            </span>
+                            <span style={{ fontSize: "0.82rem", color: "var(--text-subtle)", fontWeight: 600 }}>
+                                Lesson {indexInfo.positionText}
+                            </span>
                         </div>
 
-                        <h3 style={{ fontSize: "1.6rem", marginBottom: "1.5rem" }}>Step-by-Step Deep Dive</h3>
-                        
-                        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", marginBottom: "3rem" }}>
-                            <div className="glass-panel" style={{ padding: "1.5rem", borderLeft: "4px solid var(--success)" }}>
-                                <span className="badge badge-success mb-3">Phase 1: Beginner</span>
-                                <p style={{ margin: 0, fontSize: "1.1rem" }}>{activeTopic.beginner}</p>
-                            </div>
-                            <div className="glass-panel" style={{ padding: "1.5rem", borderLeft: "4px solid var(--warning)" }}>
-                                <span className="badge badge-warning mb-3">Phase 2: Intermediate</span>
-                                <p style={{ margin: 0, fontSize: "1.1rem" }}>{activeTopic.intermediate}</p>
-                            </div>
-                            <div className="glass-panel" style={{ padding: "1.5rem", borderLeft: "4px solid var(--primary)" }}>
-                                <span className="badge badge-primary mb-3">Phase 3: Advanced</span>
-                                <p style={{ margin: 0, fontSize: "1.1rem" }}>{activeTopic.advanced}</p>
+                        {/* Mark As Completed Toggle Button */}
+                        <button
+                            onClick={toggleTopicCompletion}
+                            style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                padding: "0.55rem 1.1rem",
+                                borderRadius: "10px",
+                                fontSize: "0.85rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                border: isTopicCompleted ? "1px solid rgba(16, 185, 129, 0.4)" : "1px solid rgba(255, 255, 255, 0.15)",
+                                background: isTopicCompleted ? "rgba(16, 185, 129, 0.15)" : "rgba(255, 255, 255, 0.05)",
+                                color: isTopicCompleted ? "#34d399" : "var(--text-main)",
+                                transition: "all 0.2s ease"
+                            }}
+                        >
+                            <span>{isTopicCompleted ? "✓ Completed" : "Mark as Completed"}</span>
+                        </button>
+                    </div>
+
+                    {/* Topic Title & Subtitle */}
+                    <h1 style={{ fontSize: "2.35rem", fontWeight: 800, margin: "0 0 0.5rem 0", letterSpacing: "-0.03em", color: "#ffffff" }}>
+                        {activeTopic.title}
+                    </h1>
+                    {activeTopic.subtitle && (
+                        <p style={{ fontSize: "1.1rem", color: "#c4b5fd", margin: "0 0 1.75rem 0", fontWeight: 500, lineHeight: 1.5 }}>
+                            {activeTopic.subtitle}
+                        </p>
+                    )}
+
+                    {/* Definition Callout */}
+                    <div
+                        style={{
+                            background: "rgba(139, 92, 246, 0.07)",
+                            borderLeft: "4px solid #8b5cf6",
+                            padding: "1.25rem 1.5rem",
+                            borderRadius: "12px",
+                            marginBottom: "1.75rem"
+                        }}
+                    >
+                        <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#a78bfa", fontWeight: 700, marginBottom: "0.35rem" }}>
+                            Definition
+                        </div>
+                        <p style={{ fontSize: "1.15rem", color: "#ffffff", margin: 0, fontWeight: 500, lineHeight: 1.6 }}>
+                            {activeTopic.definition}
+                        </p>
+                    </div>
+
+                    {/* In-depth Conceptual Explanation */}
+                    {activeTopic.explanation && (
+                        <div style={{ marginBottom: "2rem" }}>
+                            <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.6rem" }}>
+                                Conceptual Deep Dive
+                            </h3>
+                            <p style={{ fontSize: "1.02rem", color: "var(--text-main)", opacity: 0.9, lineHeight: 1.7, margin: 0 }}>
+                                {activeTopic.explanation}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Structure / Formula Badge */}
+                    {activeTopic.formula && (
+                        <div
+                            style={{
+                                background: "linear-gradient(135deg, rgba(139, 92, 246, 0.12) 0%, rgba(99, 102, 241, 0.05) 100%)",
+                                border: "1px solid rgba(139, 92, 246, 0.35)",
+                                padding: "1.25rem 1.5rem",
+                                borderRadius: "14px",
+                                marginBottom: "2rem",
+                                display: "block",
+                                boxShadow: "0 4px 20px -4px rgba(139, 92, 246, 0.2)"
+                            }}
+                        >
+                            <span
+                                style={{
+                                    fontSize: "0.75rem",
+                                    textTransform: "uppercase",
+                                    color: "#c4b5fd",
+                                    fontWeight: 700,
+                                    letterSpacing: "0.08em",
+                                    display: "block",
+                                    marginBottom: "0.4rem"
+                                }}
+                            >
+                                Canonical Sentence Formula
+                            </span>
+                            <span
+                                style={{
+                                    fontFamily: "'JetBrains Mono', Consolas, monospace",
+                                    fontSize: "1.05rem",
+                                    fontWeight: 600,
+                                    color: "#ffffff",
+                                    lineHeight: 1.5,
+                                    display: "block"
+                                }}
+                            >
+                                {activeTopic.formula}
+                            </span>
+                        </div>
+                    )}
+
+                    {/* Sentence Structures Breakdown (Positive, Negative, Questions) */}
+                    {activeTopic.sentenceStructures && activeTopic.sentenceStructures.length > 0 && (
+                        <div style={{ marginBottom: "2.5rem" }}>
+                            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#ffffff", marginBottom: "1rem" }}>
+                                Sentence Structures & Conjugation Forms
+                            </h3>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.85rem" }}>
+                                {activeTopic.sentenceStructures.map((struct, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            background: "rgba(15, 20, 34, 0.65)",
+                                            border: "1px solid rgba(255, 255, 255, 0.08)",
+                                            borderRadius: "12px",
+                                            padding: "1rem 1.25rem"
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                                            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#818cf8" }}>
+                                                {struct.type}
+                                            </span>
+                                            <code style={{ fontSize: "0.82rem", background: "rgba(0,0,0,0.4)", padding: "0.2rem 0.5rem", borderRadius: "6px", color: "#e2e8f0" }}>
+                                                {struct.structure}
+                                            </code>
+                                        </div>
+                                        <div style={{ fontSize: "0.95rem", color: "var(--text-main)", fontStyle: "italic" }}>
+                                            &ldquo;{struct.example}&rdquo;
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
+                    )}
 
-                        <h3 style={{ fontSize: "1.6rem", marginBottom: "1.2rem" }}>Quick Concept Check</h3>
-                        <div className="glass-panel" style={{ padding: "2rem", marginBottom: "2rem", border: "1px solid var(--primary)" }}>
-                            <p style={{ fontSize: "1.2rem", fontWeight: "600", marginBottom: "1.5rem", color: "white" }}>{activeTopic.practiceQ.text}</p>
-                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-                                {activeTopic.practiceQ.options.map((opt, i) => {
-                                    let btnStyle = { padding: "1rem", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "10px", color: "white", cursor: "pointer", transition: "all 0.2s", fontSize: "1.05rem", fontWeight: "500" };
-                                    if (practiceAnswer === opt) {
-                                        if (opt === activeTopic.practiceQ.answer) {
-                                            btnStyle.background = "rgba(16, 185, 129, 0.2)"; btnStyle.border = "1px solid var(--success)";
-                                        } else {
-                                            btnStyle.background = "rgba(239, 68, 68, 0.2)"; btnStyle.border = "1px solid var(--error)";
-                                        }
-                                    } else if (practiceAnswer && opt === activeTopic.practiceQ.answer) {
-                                        // Show correct answer if they got it wrong
-                                        btnStyle.background = "rgba(16, 185, 129, 0.1)"; btnStyle.border = "1px solid var(--success)";
+                    {/* Signal Words / Keywords Tags */}
+                    {activeTopic.signalWords && activeTopic.signalWords.length > 0 && (
+                        <div style={{ marginBottom: "2.5rem" }}>
+                            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.75rem" }}>
+                                Signal Words & Common Time Anchors
+                            </h3>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                                {activeTopic.signalWords.map((word, idx) => (
+                                    <span
+                                        key={idx}
+                                        style={{
+                                            fontSize: "0.85rem",
+                                            padding: "0.3rem 0.75rem",
+                                            background: "rgba(99, 102, 241, 0.12)",
+                                            border: "1px solid rgba(99, 102, 241, 0.25)",
+                                            borderRadius: "8px",
+                                            color: "#c7d2fe",
+                                            fontWeight: 600
+                                        }}
+                                    >
+                                        {word}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Tense Comparison Card (e.g. Present Simple vs Continuous) */}
+                    {activeTopic.tenseComparison && (
+                        <div
+                            style={{
+                                background: "rgba(245, 158, 11, 0.08)",
+                                border: "1px solid rgba(245, 158, 11, 0.3)",
+                                borderLeft: "4px solid #f59e0b",
+                                borderRadius: "12px",
+                                padding: "1.25rem 1.5rem",
+                                marginBottom: "2.5rem"
+                            }}
+                        >
+                            <div style={{ fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.08em", color: "#fbbf24", fontWeight: 700, marginBottom: "0.35rem" }}>
+                                Comparative Distinction: {activeTopic.tenseComparison.title}
+                            </div>
+                            <p style={{ margin: 0, fontSize: "0.98rem", color: "var(--text-main)", lineHeight: 1.65, whiteSpace: "pre-line" }}>
+                                {activeTopic.tenseComparison.explanation}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Subtypes / Classifications */}
+                    {activeTopic.types && activeTopic.types.length > 0 && (
+                        <div style={{ marginBottom: "2.5rem" }}>
+                            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", marginBottom: "1rem" }}>
+                                Types & Categories
+                            </h3>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
+                                {activeTopic.types.map((type, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="glass-panel"
+                                        style={{
+                                            padding: "1.25rem 1.5rem",
+                                            borderRadius: "12px",
+                                            border: "1px solid rgba(255, 255, 255, 0.08)"
+                                        }}
+                                    >
+                                        <div style={{ fontSize: "1.02rem", fontWeight: 700, color: "#ffffff", marginBottom: "0.4rem" }}>
+                                            {type.name}
+                                        </div>
+                                        <p style={{ margin: "0 0 0.6rem 0", fontSize: "0.95rem", color: "var(--text-main)", opacity: 0.9, lineHeight: 1.6 }}>
+                                            {type.desc}
+                                        </p>
+                                        {type.examples && (
+                                            <div style={{ fontSize: "0.88rem", color: "#a5b4fc", fontStyle: "italic", background: "rgba(0,0,0,0.3)", padding: "0.5rem 0.85rem", borderRadius: "8px" }}>
+                                                <strong style={{ color: "#ffffff", fontStyle: "normal" }}>Examples:</strong> {type.examples}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Essential Rules and Nuances */}
+                    {activeTopic.rules && activeTopic.rules.length > 0 && (
+                        <div style={{ marginBottom: "2.5rem" }}>
+                            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, color: "#ffffff", marginBottom: "1rem" }}>
+                                Essential Grammar Rules
+                            </h3>
+                            <ul style={{ paddingLeft: "1.25rem", margin: 0, display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                                {activeTopic.rules.map((rule, idx) => (
+                                    <li key={idx} style={{ fontSize: "0.98rem", color: "var(--text-main)", lineHeight: 1.65 }}>
+                                        {rule}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* Examples in Context */}
+                    {activeTopic.examples && activeTopic.examples.length > 0 && (
+                        <div
+                            style={{
+                                background: "rgba(255, 255, 255, 0.02)",
+                                padding: "1.75rem",
+                                borderRadius: "16px",
+                                border: "1px solid var(--border)",
+                                marginBottom: "2.5rem"
+                            }}
+                        >
+                            <h3
+                                style={{
+                                    fontSize: "0.85rem",
+                                    color: "var(--text-subtle)",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.08em",
+                                    fontWeight: 700,
+                                    marginBottom: "1.25rem"
+                                }}
+                            >
+                                Contextual Examples
+                            </h3>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                {activeTopic.examples.map((ex, idx) => {
+                                    if (typeof ex === "string") {
+                                        return (
+                                            <div key={idx} style={{ fontSize: "1rem", lineHeight: 1.6, color: "#ffffff" }}>
+                                                • {ex}
+                                            </div>
+                                        );
                                     }
-
                                     return (
-                                        <button key={i} style={btnStyle} disabled={!!practiceAnswer} onClick={() => setPracticeAnswer(opt)}>
-                                            {opt}
-                                        </button>
+                                        <div
+                                            key={idx}
+                                            style={{
+                                                background: "rgba(15, 20, 34, 0.6)",
+                                                border: "1px solid rgba(255, 255, 255, 0.06)",
+                                                borderRadius: "10px",
+                                                padding: "1rem 1.25rem"
+                                            }}
+                                        >
+                                            <div style={{ fontSize: "1.05rem", fontWeight: 600, color: "#ffffff", marginBottom: "0.4rem" }}>
+                                                &ldquo;{ex.text}&rdquo;
+                                            </div>
+                                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
+                                                <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                                                    {ex.breakdown}
+                                                </span>
+                                                {ex.highlight && (
+                                                    <span style={{ fontSize: "0.75rem", background: "rgba(139, 92, 246, 0.2)", color: "#c4b5fd", padding: "0.2rem 0.55rem", borderRadius: "6px", fontWeight: 600 }}>
+                                                        {ex.highlight}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     );
                                 })}
                             </div>
-                            {practiceAnswer && (
-                                <div style={{ marginTop: "1.5rem", padding: "1rem", background: practiceAnswer === activeTopic.practiceQ.answer ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.1)", borderRadius: "8px" }}>
-                                    <p style={{ margin: 0, fontWeight: "bold", color: practiceAnswer === activeTopic.practiceQ.answer ? "var(--success)" : "var(--error)" }}>
-                                        {practiceAnswer === activeTopic.practiceQ.answer ? "🎉 Correct! You're getting the hang of this." : "Incorrect. Carefully re-read the 'Common Mistakes' section above to understand why!"}
-                                    </p>
-                                </div>
+                        </div>
+                    )}
+
+                    {/* Common Mistakes Visual Widget */}
+                    {activeTopic.commonMistakes && activeTopic.commonMistakes.length > 0 && (
+                        <div style={{ marginBottom: "2.5rem" }}>
+                            <h3 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "1.25rem", color: "#ffffff" }}>
+                                ⚠️ Common Mistakes to Avoid
+                            </h3>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                {activeTopic.commonMistakes.map((mistake, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            background: "rgba(15, 20, 34, 0.7)",
+                                            padding: "1.35rem",
+                                            borderRadius: "14px",
+                                            border: "1px solid var(--border)",
+                                            boxShadow: "0 8px 24px -8px rgba(0, 0, 0, 0.4)"
+                                        }}
+                                    >
+                                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", color: "#f87171", fontSize: "1rem", marginBottom: "0.6rem" }}>
+                                            <span style={{ fontWeight: 800 }}>✕ Incorrect:</span>
+                                            <span style={{ textDecoration: "line-through", opacity: 0.9 }}>{mistake.wrong}</span>
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", color: "#34d399", fontSize: "1rem", marginBottom: "0.75rem" }}>
+                                            <span style={{ fontWeight: 800 }}>✓ Correct:</span>
+                                            <span style={{ fontWeight: 600 }}>{mistake.right}</span>
+                                        </div>
+                                        <p style={{ margin: 0, fontSize: "0.9rem", color: "var(--text-muted)", borderTop: "1px solid rgba(255, 255, 255, 0.06)", paddingTop: "0.6rem" }}>
+                                            <strong style={{ color: "#ffffff" }}>Grammar rule:</strong> {mistake.why}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Special Cases */}
+                    {activeTopic.specialCases && activeTopic.specialCases.length > 0 && (
+                        <div style={{ marginBottom: "2.5rem" }}>
+                            <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#ffffff", marginBottom: "1rem" }}>
+                                Special Cases & Nuances
+                            </h3>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.85rem" }}>
+                                {activeTopic.specialCases.map((sc, idx) => (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            background: "rgba(139, 92, 246, 0.05)",
+                                            border: "1px solid rgba(139, 92, 246, 0.2)",
+                                            borderRadius: "12px",
+                                            padding: "1.15rem 1.35rem"
+                                        }}
+                                    >
+                                        <h4 style={{ margin: "0 0 0.4rem 0", fontSize: "0.98rem", color: "#c4b5fd", fontWeight: 700 }}>
+                                            {sc.title}
+                                        </h4>
+                                        <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.92rem", color: "var(--text-main)", opacity: 0.9 }}>
+                                            {sc.desc}
+                                        </p>
+                                        {sc.example && (
+                                            <div style={{ fontSize: "0.85rem", color: "#a5b4fc", fontStyle: "italic" }}>
+                                                &ldquo;{sc.example}&rdquo;
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* ===================== INTERACTIVE PRACTICE EXERCISES ENGINE ===================== */}
+                    {exercises.length > 0 && (
+                        <div style={{ marginBottom: "2.5rem" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                                <h3 style={{ fontSize: "1.35rem", fontWeight: 800, margin: 0, color: "#ffffff" }}>
+                                    Interactive Practice Exercises
+                                </h3>
+                                <span style={{ fontSize: "0.85rem", color: "var(--text-subtle)", fontWeight: 600 }}>
+                                    Question {currentQuestionIndex + 1} of {exercises.length}
+                                </span>
+                            </div>
+
+                            <div
+                                className="glass-panel"
+                                style={{
+                                    padding: "2rem",
+                                    border: "1px solid rgba(139, 92, 246, 0.35)",
+                                    boxShadow: "0 8px 30px -8px rgba(139, 92, 246, 0.25)",
+                                    borderRadius: "16px"
+                                }}
+                            >
+                                {!quizCompleted ? (
+                                    <div>
+                                        {/* Question Text */}
+                                        <p style={{ fontSize: "1.15rem", fontWeight: 600, marginBottom: "1.5rem", color: "#ffffff", lineHeight: 1.5 }}>
+                                            {currentQuestion?.question}
+                                        </p>
+
+                                        {/* Options Grid */}
+                                        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.85rem", marginBottom: "1.5rem" }}>
+                                            {currentQuestion?.options.map((opt, i) => {
+                                                const isSelected = selectedOption === opt;
+                                                const isCorrectAnswer = opt === currentQuestion.answer;
+
+                                                let btnBg = "rgba(15, 20, 34, 0.7)";
+                                                let btnBorder = "rgba(255, 255, 255, 0.1)";
+                                                let btnColor = "#ffffff";
+
+                                                if (isSubmitted) {
+                                                    if (isCorrectAnswer) {
+                                                        btnBg = "rgba(16, 185, 129, 0.2)";
+                                                        btnBorder = "var(--success)";
+                                                        btnColor = "#34d399";
+                                                    } else if (isSelected && !isCorrectAnswer) {
+                                                        btnBg = "rgba(239, 68, 68, 0.2)";
+                                                        btnBorder = "var(--error)";
+                                                        btnColor = "#f87171";
+                                                    }
+                                                } else if (isSelected) {
+                                                    btnBg = "rgba(139, 92, 246, 0.25)";
+                                                    btnBorder = "#8b5cf6";
+                                                }
+
+                                                return (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => handleSelectOption(opt)}
+                                                        disabled={isSubmitted}
+                                                        style={{
+                                                            padding: "0.95rem 1.25rem",
+                                                            background: btnBg,
+                                                            border: `1px solid ${btnBorder}`,
+                                                            borderRadius: "12px",
+                                                            color: btnColor,
+                                                            cursor: isSubmitted ? "default" : "pointer",
+                                                            transition: "all 0.15s ease",
+                                                            fontSize: "0.98rem",
+                                                            fontWeight: 600,
+                                                            textAlign: "left"
+                                                        }}
+                                                    >
+                                                        {opt}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        {/* Submit or Next Question Action */}
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+                                            {!isSubmitted ? (
+                                                <button
+                                                    className="btn btn-primary"
+                                                    disabled={!selectedOption}
+                                                    onClick={handleSubmitAnswer}
+                                                    style={{
+                                                        padding: "0.75rem 1.75rem",
+                                                        borderRadius: "10px",
+                                                        fontSize: "0.95rem",
+                                                        fontWeight: 700,
+                                                        opacity: selectedOption ? 1 : 0.5,
+                                                        cursor: selectedOption ? "pointer" : "not-allowed"
+                                                    }}
+                                                >
+                                                    Submit Answer
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={handleNextQuestion}
+                                                    style={{
+                                                        padding: "0.75rem 1.75rem",
+                                                        borderRadius: "10px",
+                                                        fontSize: "0.95rem",
+                                                        fontWeight: 700
+                                                    }}
+                                                >
+                                                    {currentQuestionIndex < exercises.length - 1 ? "Next Question →" : "View Results →"}
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Feedback Explanation Callout */}
+                                        {isSubmitted && (
+                                            <div
+                                                style={{
+                                                    marginTop: "1.5rem",
+                                                    padding: "1.25rem 1.5rem",
+                                                    background:
+                                                        selectedOption === currentQuestion.answer
+                                                            ? "rgba(16, 185, 129, 0.12)"
+                                                            : "rgba(239, 68, 68, 0.12)",
+                                                    border: `1px solid ${selectedOption === currentQuestion.answer ? "var(--success)" : "var(--error)"}`,
+                                                    borderRadius: "12px"
+                                                }}
+                                            >
+                                                <div style={{ fontWeight: 800, color: selectedOption === currentQuestion.answer ? "#34d399" : "#f87171", marginBottom: "0.35rem" }}>
+                                                    {selectedOption === currentQuestion.answer ? "🎉 Correct!" : "⚠️ Not quite right."}
+                                                </div>
+                                                <p style={{ margin: 0, fontSize: "0.95rem", color: "var(--text-main)", lineHeight: 1.5 }}>
+                                                    {currentQuestion.explanation}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    /* Quiz Results Summary */
+                                    <div style={{ textAlign: "center", padding: "1.5rem 1rem" }}>
+                                        <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>
+                                            {correctCount >= Math.ceil(exercises.length * 0.75) ? "🏆" : "📚"}
+                                        </div>
+                                        <h4 style={{ fontSize: "1.5rem", fontWeight: 800, margin: "0 0 0.5rem 0", color: "#ffffff" }}>
+                                            Practice Complete!
+                                        </h4>
+                                        <p style={{ fontSize: "1.1rem", color: "var(--text-muted)", margin: "0 0 1.5rem 0" }}>
+                                            You scored <strong style={{ color: "#34d399" }}>{correctCount}</strong> out of{" "}
+                                            <strong>{exercises.length}</strong> ({Math.round((correctCount / exercises.length) * 100)}%).
+                                        </p>
+                                        <div style={{ display: "flex", justifyContent: "center", gap: "1rem", flexWrap: "wrap" }}>
+                                            <button
+                                                className="btn btn-secondary"
+                                                onClick={handleRetryQuiz}
+                                                style={{ padding: "0.7rem 1.5rem", borderRadius: "10px", fontSize: "0.92rem", fontWeight: 700 }}
+                                            >
+                                                ↻ Retry Practice
+                                            </button>
+                                            {nextTopic && (
+                                                <button
+                                                    className="btn btn-primary"
+                                                    onClick={() => handleTopicChange(nextTopic.id)}
+                                                    style={{ padding: "0.7rem 1.5rem", borderRadius: "10px", fontSize: "0.92rem", fontWeight: 700 }}
+                                                >
+                                                    Next Lesson ({nextTopic.title}) →
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Quick Revision Summary */}
+                    {activeTopic.quickRevision && activeTopic.quickRevision.length > 0 && (
+                        <div
+                            style={{
+                                background: "linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%)",
+                                border: "1px solid rgba(16, 185, 129, 0.25)",
+                                borderLeft: "4px solid var(--success)",
+                                padding: "1.35rem 1.5rem",
+                                borderRadius: "14px",
+                                marginBottom: "2.5rem"
+                            }}
+                        >
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#34d399", fontWeight: 800, marginBottom: "0.6rem", fontSize: "0.92rem" }}>
+                                <span>⚡</span> <span style={{ letterSpacing: "0.06em", textTransform: "uppercase" }}>Quick Revision Summary</span>
+                            </div>
+                            <ul style={{ paddingLeft: "1.25rem", margin: 0, display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                {activeTopic.quickRevision.map((point, idx) => (
+                                    <li key={idx} style={{ fontSize: "0.95rem", color: "var(--text-main)", lineHeight: 1.5 }}>
+                                        {point}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
+                    {/* Bottom Navigation: Previous / Next Lesson */}
+                    <div
+                        style={{
+                            marginTop: "2.5rem",
+                            paddingTop: "2rem",
+                            borderTop: "1px solid var(--border)",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            flexWrap: "wrap",
+                            gap: "1rem"
+                        }}
+                    >
+                        <div>
+                            {prevTopic ? (
+                                <button
+                                    onClick={() => handleTopicChange(prevTopic.id)}
+                                    style={{
+                                        background: "rgba(255, 255, 255, 0.05)",
+                                        border: "1px solid rgba(255, 255, 255, 0.12)",
+                                        borderRadius: "10px",
+                                        padding: "0.65rem 1.25rem",
+                                        color: "#ffffff",
+                                        cursor: "pointer",
+                                        fontSize: "0.9rem",
+                                        fontWeight: 600,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.5rem"
+                                    }}
+                                >
+                                    ← {prevTopic.title}
+                                </button>
+                            ) : (
+                                <div />
                             )}
                         </div>
 
-                    </div>
+                        <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                            {nextTopic && (
+                                <button
+                                    onClick={() => handleTopicChange(nextTopic.id)}
+                                    style={{
+                                        background: "rgba(139, 92, 246, 0.18)",
+                                        border: "1px solid rgba(139, 92, 246, 0.45)",
+                                        borderRadius: "10px",
+                                        padding: "0.65rem 1.35rem",
+                                        color: "#ffffff",
+                                        cursor: "pointer",
+                                        fontSize: "0.9rem",
+                                        fontWeight: 700,
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.5rem"
+                                    }}
+                                >
+                                    {nextTopic.title} →
+                                </button>
+                            )}
 
-                    <div style={{ marginTop: "2rem", paddingTop: "2rem", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "1.1rem" }}>Want to test this knowledge dynamically?</p>
-                        <button className="btn btn-primary" style={{ fontSize: "1.1rem", padding: "1rem 2rem" }} onClick={() => navigate("/test")}>
-                            Jump into AI Exam Room →
-                        </button>
+                            <button
+                                className="btn btn-primary"
+                                style={{ fontSize: "0.92rem", padding: "0.65rem 1.4rem", borderRadius: "10px" }}
+                                onClick={() => navigate("/test")}
+                            >
+                                Launch AI Practice Exam →
+                            </button>
+                        </div>
                     </div>
                 </section>
             </main>

@@ -19,31 +19,65 @@ const Challenge = () => {
 
     return (
         <div className="app-container">
-            <main className="main-content animate-fade-in" style={{ maxWidth: "800px" }}>
+            <main className="main-content animate-fade-in" style={{ maxWidth: "840px" }}>
                 
-                <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-                    <h1 className="text-gradient hover-scale" style={{ fontSize: "3rem" }}>Daily Quests</h1>
-                    <p>Complete these tasks individually to earn XP and level up your English intuition.</p>
+                <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+                    <div style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4rem",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        color: "#fbbf24",
+                        marginBottom: "0.35rem"
+                    }}>
+                        <span>✦</span> Daily Gamification
+                    </div>
+                    <h1 className="text-gradient" style={{ fontSize: "2.8rem", margin: 0, fontWeight: 800 }}>
+                        Daily Quests
+                    </h1>
+                    <p style={{ fontSize: "1.05rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
+                        Complete target quests to earn XP, maintain momentum, and elevate your English proficiency.
+                    </p>
                 </div>
 
                 {/* Progress Bar Container */}
-                <div className="glass-panel stagger-1 mb-8" style={{ padding: "2rem" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "1rem" }}>
-                        <h3 style={{ margin: 0 }}>Today's Progress</h3>
-                        <span style={{ color: "var(--accent)", fontWeight: "bold" }}>{completedCount} / {tasks.length} Completed</span>
+                <div className="glass-panel stagger-1 mb-8" style={{ padding: "2rem", borderRadius: "18px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+                        <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 700 }}>Today's Quest Progress</h3>
+                        <span style={{
+                            color: "#fbbf24",
+                            fontWeight: 700,
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: "0.95rem"
+                        }}>
+                            {completedCount} / {tasks.length} Completed
+                        </span>
                     </div>
                     
-                    <div style={{ width: "100%", height: "12px", background: "rgba(255,255,255,0.05)", borderRadius: "999px", overflow: "hidden" }}>
+                    <div style={{ width: "100%", height: "10px", background: "rgba(255, 255, 255, 0.08)", borderRadius: "999px", overflow: "hidden" }}>
                         <div style={{ 
                             width: `${progressPercent}%`, 
                             height: "100%", 
-                            background: "var(--gradient-primary)", 
-                            transition: "width 0.5s ease-out" 
-                        }}></div>
+                            background: "var(--gradient-primary)",
+                            borderRadius: "999px",
+                            boxShadow: "0 0 12px rgba(99, 102, 241, 0.5)",
+                            transition: "width 0.6s cubic-bezier(0.16, 1, 0.3, 1)" 
+                        }} />
                     </div>
                     
                     {progressPercent === 100 && (
-                        <div className="animate-fade-in text-center mt-4" style={{ color: "var(--success)", fontWeight: "bold" }}>
+                        <div className="animate-fade-in text-center mt-4" style={{
+                            color: "#34d399",
+                            fontWeight: 700,
+                            fontSize: "0.95rem",
+                            background: "rgba(16, 185, 129, 0.1)",
+                            padding: "0.75rem",
+                            borderRadius: "10px",
+                            border: "1px solid rgba(16, 185, 129, 0.25)"
+                        }}>
                             🎉 You've completed all daily quests! Come back tomorrow for more.
                         </div>
                     )}
@@ -54,15 +88,18 @@ const Challenge = () => {
                     {tasks.map((task) => (
                         <div 
                             key={task.id}
-                            className="glass-panel hover-scale"
+                            className="glass-panel"
                             style={{ 
                                 display: "flex", 
-                                gap: "1.5rem", 
+                                gap: "1.25rem", 
                                 alignItems: "center",
-                                opacity: task.isCompleted ? 0.6 : 1,
-                                border: task.isCompleted ? "1px solid var(--success)" : "1px solid var(--border)",
-                                transition: "all 0.3s ease",
-                                cursor: "pointer"
+                                opacity: task.isCompleted ? 0.65 : 1,
+                                border: task.isCompleted ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid var(--border)",
+                                borderRadius: "16px",
+                                padding: "1.35rem 1.6rem",
+                                cursor: "pointer",
+                                transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+                                background: task.isCompleted ? "rgba(16, 185, 129, 0.04)" : "rgba(15, 20, 34, 0.7)"
                             }}
                             onClick={() => toggleTask(task.id)}
                         >
@@ -70,41 +107,45 @@ const Challenge = () => {
                             <div style={{ 
                                 width: "32px", 
                                 height: "32px", 
-                                borderRadius: "50%", 
-                                border: `2px solid ${task.isCompleted ? "var(--success)" : "var(--primary)"}`,
-                                background: task.isCompleted ? "var(--success)" : "transparent",
+                                borderRadius: "10px", 
+                                border: `2px solid ${task.isCompleted ? "var(--success)" : "rgba(255, 255, 255, 0.2)"}`,
+                                background: task.isCompleted ? "var(--success)" : "rgba(255, 255, 255, 0.03)",
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
                                 transition: "all 0.2s ease",
                                 flexShrink: 0
                             }}>
-                                {task.isCompleted && <span style={{ color: "white", fontSize: "1.2rem", fontWeight: "bold" }}>✓</span>}
+                                {task.isCompleted && <span style={{ color: "white", fontSize: "1.1rem", fontWeight: "bold" }}>✓</span>}
                             </div>
                             
                             {/* Content */}
                             <div style={{ flex: 1 }}>
                                 <h3 style={{ 
-                                    margin: "0 0 0.5rem 0", 
-                                    color: task.isCompleted ? "var(--success)" : "white",
+                                    margin: "0 0 0.25rem 0", 
+                                    fontSize: "1.1rem",
+                                    fontWeight: 700,
+                                    color: task.isCompleted ? "#34d399" : "white",
                                     textDecoration: task.isCompleted ? "line-through" : "none" 
                                 }}>
                                     {task.title}
                                 </h3>
-                                <p style={{ margin: 0, fontSize: "0.95rem" }}>{task.desc}</p>
+                                <p style={{ margin: 0, fontSize: "0.92rem", color: "var(--text-muted)" }}>{task.desc}</p>
                             </div>
 
                             {/* Rewards */}
                             <div style={{ textAlign: "right" }}>
-                                <div className="badge badge-warning">+{task.xp} XP</div>
+                                <div className="badge badge-warning" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                                    +{task.xp} XP
+                                </div>
                             </div>
                         </div>
                     ))}
                 </div>
 
                 <div className="text-center mt-8 stagger-3">
-                    <button className="btn btn-secondary" onClick={() => navigate("/test")}>
-                        Jump to Practice Tests →
+                    <button className="btn btn-secondary" onClick={() => navigate("/test")} style={{ borderRadius: "12px", padding: "0.85rem 1.8rem" }}>
+                        Jump into AI Practice Tests →
                     </button>
                 </div>
 
