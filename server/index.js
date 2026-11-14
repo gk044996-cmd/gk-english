@@ -255,6 +255,10 @@ app.get("/", (_req, res) => {
     res.json({ status: "ok", message: "English Coach AI Backend 🚀" });
 });
 
+app.get("/health", (_req, res) => {
+    res.status(200).json({ status: "ok", message: "English Coach AI Backend 🚀" });
+});
+
 // ── Generate Question ──────────────────────────────────────────────────────────
 app.post("/generate-question", async (_req, res) => {
     const topics = [
@@ -1580,4 +1584,6 @@ if (fs.existsSync(clientBuildPath)) {
 
 // ── Start ──────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+});
